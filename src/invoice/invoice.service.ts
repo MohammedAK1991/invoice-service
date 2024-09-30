@@ -3,12 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { Invoice } from './invoice.schema';
-import { pubsubClient, SUBSCRIPTION_NAME } from 'src/config/pubsub.config';
+import { SUBSCRIPTION_NAME } from 'src/constants';
+import { PubSubService } from 'src/pubsub/pubsub.service';
 
 @Injectable()
 export class InvoiceService implements OnModuleInit {
   constructor(
     @InjectModel('Invoice') private readonly invoiceModel: Model<Invoice>,
+    private readonly pubSubService: PubSubService,
   ) {}
 
   onModuleInit() {
@@ -55,9 +57,7 @@ export class InvoiceService implements OnModuleInit {
   }
 
   private listenForOrderEvents(): void {
-    const subscription = pubsubClient.subscription(SUBSCRIPTION_NAME);
-
-    subscription.on('message', async (message) => {
+    this.pubSubService.subscribe(SUBSCRIPTION_NAME, async (message) => {
       console.log('Received message:', message.data.toString());
       const orderEvent = JSON.parse(message.data.toString());
 
@@ -70,12 +70,6 @@ export class InvoiceService implements OnModuleInit {
           console.error('Error processing order event:', error);
         }
       }
-
-      message.ack();
-    });
-
-    subscription.on('error', (error) => {
-      console.error('Subscription error:', error);
     });
 
     console.log('Listening for order events...');
