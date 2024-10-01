@@ -7,7 +7,7 @@ dotenv.config();
 @Injectable()
 export class PubSubService {
   private readonly logger = new Logger(PubSubService.name);
-  private pubSubClient: PubSub;
+  private readonly pubSubClient: PubSub;
 
   constructor() {
     this.pubSubClient = new PubSub({
