@@ -87,7 +87,11 @@ describe('InvoiceController', () => {
 
     describe('sendInvoice', () => {
       it('should send an invoice', async () => {
-        const result: Invoice = { id: '1', orderId: '1', pdfUrl: 'url' };
+        const result: Invoice = {
+          id: '1',
+          orderId: '1',
+          pdfUrl: 'url',
+        } as Invoice;
         jest.spyOn(service, 'sendInvoice').mockResolvedValue(result);
 
         expect(await controller.sendInvoice('1')).toBe(result);
@@ -120,7 +124,11 @@ describe('InvoiceController', () => {
 
     describe('getInvoice', () => {
       it('should return an invoice', async () => {
-        const result: Invoice = { id: '1', orderId: '1', pdfUrl: 'url' };
+        const result: Invoice = {
+          id: '1',
+          orderId: '1',
+          pdfUrl: 'url',
+        } as Invoice;
         jest.spyOn(service, 'getInvoice').mockResolvedValue(result);
 
         expect(await controller.getInvoice('1')).toBe(result);
@@ -153,7 +161,9 @@ describe('InvoiceController', () => {
 
     describe('getAllInvoices', () => {
       it('should return all invoices', async () => {
-        const result: Invoice[] = [{ id: '1', orderId: '1', pdfUrl: 'url' }];
+        const result: Invoice[] = [
+          { id: '1', orderId: '1', pdfUrl: 'url' } as Invoice,
+        ];
         jest.spyOn(service, 'getAllInvoices').mockResolvedValue(result);
 
         expect(await controller.getAllInvoices()).toBe(result);
@@ -175,7 +185,11 @@ describe('InvoiceController', () => {
 
     describe('getInvoiceByOrderId', () => {
       it('should return an invoice by order ID', async () => {
-        const result: Invoice = { id: '1', orderId: '1', pdfUrl: 'url' };
+        const result: Invoice = {
+          id: '1',
+          orderId: '1',
+          pdfUrl: 'url',
+        } as Invoice;
         jest.spyOn(service, 'getInvoiceByOrderId').mockResolvedValue(result);
 
         expect(await controller.getInvoiceByOrderId('1')).toBe(result);
