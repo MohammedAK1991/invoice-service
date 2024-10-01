@@ -9,10 +9,10 @@ import {
   HttpStatus,
   UseFilters,
 } from '@nestjs/common';
-import { CreateInvoiceDto } from 'src/application/dtos/create-invoice.dto';
-import { InvoiceHandler } from 'src/application/handlers/invoice.handler';
-import { AllExceptionsFilter } from 'src/common/http-exception.filter';
-import { Invoice } from 'src/domain/entities/invoice.entity';
+import { CreateInvoiceDto } from '../../../application/dtos/create-invoice.dto';
+import { InvoiceHandler } from '../../../application/handlers/invoice.handler';
+import { AllExceptionsFilter } from '../../../common/http-exception.filter';
+import { Invoice } from '../../../domain/entities/invoice.entity';
 
 @Controller('invoices')
 @UseFilters(AllExceptionsFilter)
