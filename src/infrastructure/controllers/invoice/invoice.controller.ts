@@ -9,25 +9,22 @@ import {
   HttpStatus,
   UseFilters,
 } from '@nestjs/common';
-import { InvoiceService } from './invoice.service';
-import { CreateInvoiceDto } from './dto/create-invoice.dto';
-import { Invoice } from './interfaces/invoice.interface';
-import { AllExceptionsFilter } from '../common/http-exception.filter';
+import { CreateInvoiceDto } from 'src/application/dtos/create-invoice.dto';
+import { InvoiceHandler } from 'src/application/handlers/invoice.handler';
+import { AllExceptionsFilter } from 'src/common/http-exception.filter';
+import { Invoice } from 'src/domain/entities/invoice.entity';
 
 @Controller('invoices')
 @UseFilters(AllExceptionsFilter)
 export class InvoiceController {
-  constructor(private readonly invoiceService: InvoiceService) {}
+  constructor(private readonly invoiceHandler: InvoiceHandler) {}
 
   @Post()
   async createInvoice(
     @Body() createInvoiceDto: CreateInvoiceDto,
   ): Promise<Invoice> {
     try {
-      return await this.invoiceService.createInvoice(
-        createInvoiceDto.orderId,
-        createInvoiceDto.pdfUrl,
-      );
+      return await this.invoiceHandler.createInvoice(createInvoiceDto);
     } catch (error) {
       throw new HttpException(
         `Failed to create invoice: ${error.message}`,
@@ -39,7 +36,7 @@ export class InvoiceController {
   @Put(':invoiceId/send')
   async sendInvoice(@Param('invoiceId') invoiceId: string): Promise<Invoice> {
     try {
-      const sentInvoice = await this.invoiceService.sendInvoice(invoiceId);
+      const sentInvoice = await this.invoiceHandler.sendInvoice(invoiceId);
       if (!sentInvoice) {
         throw new HttpException(
           `Invoice with ID ${invoiceId} not found`,
@@ -61,7 +58,7 @@ export class InvoiceController {
   @Get(':invoiceId')
   async getInvoice(@Param('invoiceId') invoiceId: string): Promise<Invoice> {
     try {
-      const invoice = await this.invoiceService.getInvoice(invoiceId);
+      const invoice = await this.invoiceHandler.getInvoice(invoiceId);
       if (!invoice) {
         throw new HttpException(
           `Invoice with ID ${invoiceId} not found`,
@@ -83,7 +80,7 @@ export class InvoiceController {
   @Get()
   async getAllInvoices(): Promise<Invoice[]> {
     try {
-      return await this.invoiceService.getAllInvoices();
+      return await this.invoiceHandler.getAllInvoices();
     } catch (error) {
       throw new HttpException(
         `Failed to retrieve invoices: ${error.message}`,
@@ -97,7 +94,7 @@ export class InvoiceController {
     @Param('orderId') orderId: string,
   ): Promise<Invoice> {
     try {
-      const invoice = await this.invoiceService.getInvoiceByOrderId(orderId);
+      const invoice = await this.invoiceHandler.getInvoiceByOrderId(orderId);
       if (!invoice) {
         throw new HttpException(
           `Invoice for order ${orderId} not found`,
