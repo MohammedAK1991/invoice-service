@@ -1,17 +1,21 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { Invoice } from '../../../domain/entities/invoice.entity';
-import { SUBSCRIPTION_NAME } from 'src/common/constants';
-import { PubSubService } from 'src/common/pubsub/pubsub.service';
-import { InvoiceNotFoundError } from 'src/domain/errors/invoice-not-found.error';
+import { SUBSCRIPTION_NAME } from '../../../common/constants';
+import { PubSubService } from '../../../common/pubsub/pubsub.service';
+import { InvoiceNotFoundError } from '../../../domain/errors/invoice-not-found.error';
+import { IInvoiceRepository } from '../../../domain/repository/invoice.repository.interface';
 
 @Injectable()
 export class InvoiceService implements OnModuleInit {
   constructor(
-    @InjectModel('Invoice') private readonly invoiceModel: Model<Invoice>,
     private readonly pubSubService: PubSubService,
+    @Inject('IInvoiceRepository')
+    private readonly invoiceRepository: IInvoiceRepository,
   ) {}
 
   onModuleInit() {
@@ -19,28 +23,19 @@ export class InvoiceService implements OnModuleInit {
   }
 
   async createInvoice(orderId: string, pdfUrl: string): Promise<Invoice> {
-    const invoice = new this.invoiceModel({
-      invoiceId: uuidv4(),
-      orderId,
-      pdfUrl,
-      createdAt: new Date(),
-    });
-    return invoice.save();
+    return this.invoiceRepository.create(orderId, pdfUrl);
   }
 
-  async sendInvoice(invoiceId: string): Promise<Invoice> {
-    const invoice = await this.invoiceModel.findOne({ invoiceId });
+  async sendInvoice(invoiceId: string): Promise<Invoice | null> {
+    const invoice = await this.invoiceRepository.findOne(invoiceId);
     if (!invoice) {
-      throw new InvoiceNotFoundError(
-        `Invoice for order ${invoiceId} not found`,
-      );
+      throw new InvoiceNotFoundError(`Invoice with ID ${invoiceId} not found`);
     }
-    invoice.sentAt = new Date();
-    return invoice.save();
+    return this.invoiceRepository.update(invoiceId, { sentAt: new Date() });
   }
 
   async getInvoice(invoiceId: string): Promise<Invoice> {
-    const invoice = await this.invoiceModel.findOne({ invoiceId });
+    const invoice = await this.invoiceRepository.findOne(invoiceId);
     if (!invoice) {
       throw new NotFoundException(`Invoice with ID ${invoiceId} not found`);
     }
@@ -48,11 +43,11 @@ export class InvoiceService implements OnModuleInit {
   }
 
   async getAllInvoices(): Promise<Invoice[]> {
-    return this.invoiceModel.find().exec();
+    return this.invoiceRepository.findAll();
   }
 
   async getInvoiceByOrderId(orderId: string): Promise<Invoice> {
-    const invoice = await this.invoiceModel.findOne({ orderId });
+    const invoice = await this.invoiceRepository.findByOrderId(orderId);
     if (!invoice) {
       throw new InvoiceNotFoundError(`Invoice for order ${orderId} not found`);
     }
@@ -67,7 +62,7 @@ export class InvoiceService implements OnModuleInit {
       if (orderEvent.status === 'Shipped') {
         try {
           const invoice = await this.getInvoiceByOrderId(orderEvent.orderId);
-          await this.sendInvoice(invoice.invoiceId);
+          await this.sendInvoice(invoice.id);
           console.log(`Invoice sent for order ${orderEvent.orderId}`);
         } catch (error) {
           console.error('Error processing order event:', error);
