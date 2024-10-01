@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { InvoiceModule } from './invoice/invoice.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PubSubModule } from './pubsub/pubsub.module';
+import { PubSubModule } from './common/pubsub/pubsub.module';
+import { InvoiceModule } from './invoice.module';
 
 @Module({
   imports: [
