@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Invoice } from '../../../domain/entities/invoice.entity';
 import { SUBSCRIPTION_NAME } from 'src/common/constants';
 import { PubSubService } from 'src/common/pubsub/pubsub.service';
+import { InvoiceNotFoundError } from 'src/domain/errors/invoice-not-found.error';
 
 @Injectable()
 export class InvoiceService implements OnModuleInit {
@@ -30,7 +31,10 @@ export class InvoiceService implements OnModuleInit {
   async sendInvoice(invoiceId: string): Promise<Invoice> {
     const invoice = await this.invoiceModel.findOne({ invoiceId });
     if (!invoice) {
-      throw new InvoiceNotFoundError(`Invoice for order ${invoiceId} not found`);    }
+      throw new InvoiceNotFoundError(
+        `Invoice for order ${invoiceId} not found`,
+      );
+    }
     invoice.sentAt = new Date();
     return invoice.save();
   }
