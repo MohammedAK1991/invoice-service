@@ -1,0 +1,24 @@
+version: '3'
+services:
+  invoice-service:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/invoicedb
+      - GOOGLE_CLOUD_PROJECT_ID=${GOOGLE_CLOUD_PROJECT_ID}
+      - GOOGLE_CLOUD_KEY_FILE=secrets/google_cloud_pubsub_key.json
+    volumes:
+      - ./secrets:/usr/src/app/secrets
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:4.4
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
