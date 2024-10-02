@@ -74,11 +74,41 @@ src/
    TOPIC_NAME=your_pubsub_topic_name
    SUBSCRIPTION_NAME=your_pubsub_subscription_name
    ```
+4. Set up Google Cloud credentials:
+```
+mkdir secrets
+cp path/to/your/keyfile.json secrets/google_cloud_pubsub_key.json
+```
 
-## Running the Application
+## Running the Application with Docker
 
-To run the application in development mode:
+Build and run the services using Docker Compose:
+```
+docker-compose up --build
+```
 
+
+This will start the Order Service on port 3002 and MongoDB on port 27017.
+
+5. To stop the services:
+
+```
+docker-compose down
+```
+
+## Running the Application locally
+
+1. Install MongoDB Community Edition:
+- For Ubuntu: Follow the [official MongoDB installation guide](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/)
+- For other operating systems, refer to the [MongoDB documentation](https://docs.mongodb.com/manual/installation/)
+
+2. Start MongoDB:
+
+```
+sudo systemctl start mongod
+```
+
+3. Run the application in development mode:
 ```
 npm run start:dev
 ```
