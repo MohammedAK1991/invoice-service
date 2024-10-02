@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IInvoiceRepository } from '../../domain/repository/invoice.repository.interface';
 import { Invoice } from '../../domain/entities/invoice.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class MongoDBInvoiceRepository implements IInvoiceRepository {
@@ -11,7 +12,12 @@ export class MongoDBInvoiceRepository implements IInvoiceRepository {
   ) {}
 
   async create(orderId: string, pdfUrl: string): Promise<Invoice> {
-    const createdInvoice = new this.invoiceModel({ orderId, pdfUrl });
+    const createdInvoice = new this.invoiceModel({
+      invoiceId: uuidv4(),
+      orderId,
+      pdfUrl,
+      createdAt: new Date(),
+    });
     return createdInvoice.save();
   }
 

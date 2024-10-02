@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
 @Schema()
 export class Invoice extends Document {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true, default: uuidv4 })
   invoiceId: string;
 
   @Prop({ required: true })
@@ -12,7 +13,7 @@ export class Invoice extends Document {
   @Prop({ required: true })
   pdfUrl: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: Date.now })
   createdAt: Date;
 
   @Prop()
